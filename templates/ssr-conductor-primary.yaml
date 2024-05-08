@@ -1,0 +1,25 @@
+{% extends 'ssr-base.yaml' %}
+{%- block write_files %}
+- path: /root/initializer-preferences.json
+  content: |
+    {"node-role": "conductor", "node-name": "node-a", "router-name": "{{ deployment }}-conductor",  "node-ip": "{{ mgmt_ip }}", "admin-password": "{{ admin_password }}"}
+- path: /root/base-config.pcli
+  content: |
+    config authority router {{ deployment }}-conductor system inactivity-timer 86400
+{%- set nodes = ['a', 'b'] -%}
+{%- for conductor_ip in conductor_ips %}
+    config authority router {{ deployment }}-conductor node node-{{nodes[loop.index0]}} asset-id {{ deployment }}-conductor-{{nodes[loop.index0]}}
+    config authority router {{ deployment }}-conductor node node-{{nodes[loop.index0]}} device-interface mgmt1 interface-name     eth0
+    config authority router {{ deployment }}-conductor node node-{{nodes[loop.index0]}} device-interface mgmt1 forwarding         false
+    config authority router {{ deployment }}-conductor node node-{{nodes[loop.index0]}} device-interface mgmt1 network-interface mgmt1 type     fabric
+    config authority router {{ deployment }}-conductor node node-{{nodes[loop.index0]}} device-interface mgmt1 network-interface mgmt1 address {{ conductor_ip }} prefix-length  24
+{%- endfor %}
+    exit
+    commit force
+{% endblock %}
+
+{% block runcmd -%}
+{{ super() }}
+- echo "iptables -I INPUT 1 -p tcp --dport 22 -i eth1 -j REJECT" >> /etc/rc.d/rc.local; chmod +x /etc/rc.d/rc.local; /etc/rc.d/rc.local
+- sleep 60; if [ -e /root/base-config.pcli ]; then sudo -u admin pcli < /root/base-config.pcli; fi
+{%- endblock %}

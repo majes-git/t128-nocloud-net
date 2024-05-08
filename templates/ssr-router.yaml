@@ -1,0 +1,7 @@
+{% extends 'ssr-base.yaml' %}
+
+{%- block write_files %}
+- path: /root/initializer-preferences.json
+  content: |
+    {"node-role": "combo", "node-ip": "127.0.0.1", "node-name": "dummy-node", "router-name": "dummy-router", "conductor": {"primary": {"ip": "{{ conductor_ips[0] }}"}}, "admin-password": "{{ admin_password }}"}
+{% endblock %}
