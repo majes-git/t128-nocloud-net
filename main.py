@@ -94,7 +94,6 @@ def user(hostname):
                 template = env.get_template(f'{vm_type}.yaml')
                 addition_variables = {}
                 addition_variables.update(deployment_config['global'])
-                addition_variables.update(deployment_config['global'])
                 if vm.get('template_variables'):
                     addition_variables.update(vm['template_variables'])
                 if template:
@@ -105,9 +104,6 @@ def user(hostname):
                         conductor_ips=conductor_ips,
                         pre_runcmd=vm.get('pre_runcmd'),
                         post_runcmd=vm.get('post_runcmd'),
-                        # root_password=deployment_config['global'].get('root_password'),
-                        # root_ssh_key=deployment_config['global'].get('root_ssh_key'),
-                        # admin_password=deployment_config['global'].get('admin_password'),
                         **addition_variables,
                     )
     return user_data
