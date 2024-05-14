@@ -86,7 +86,7 @@ def user(hostname):
         vm_type = vm.get('type')
         vm_id = vm.get('id')
         deployment_name = deployment_config['deployment']
-        if hostname == f'{vm_name}':
+        if hostname == f'{vm_name}' or hostname == f'{deployment_name}-{vm_name}':
             network_config = indent(get_network_config(deployment_config, vm_name), ' '*4)
             if vm_type:
                 mgmt_ip = mgmt_ip_prefix.format(vm_id)
