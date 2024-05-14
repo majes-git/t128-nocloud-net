@@ -8,9 +8,9 @@ from textwrap import indent
 import yaml
 
 DEFAULT_DNS = [ '8.8.8.8', '1.1.1.1' ]
-TEMPLATE_PATH = '/var/lib/t128-nocloud-net'
+TEMPLATE_PATH = '/var/lib/t128-nocloud-net/templates'
 
-app = Flask(__name__, template_folder=f'{TEMPLATE_PATH}/templates')
+app = Flask(__name__)
 
 
 def parse_arguments():
