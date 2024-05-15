@@ -6,36 +6,36 @@
     net.ipv4.ip_forward=1
 - path: /etc/frr/frr.conf.generated
   content: |
-      # default to using syslog. /etc/rsyslog.d/45-frr.conf places the log
+    # default to using syslog. /etc/rsyslog.d/45-frr.conf places the log
     # in /var/log/frr/frr.log
     log syslog informational
 
     router bgp {{ local_as }}
-     bgp router-id {{ mgmt_ip }}
-     bgp log-neighbor-changes
-     no bgp ebgp-requires-policy
-     bgp graceful-restart preserve-fw-state
-     bgp bestpath compare-routerid
-     timers bgp 30 90
-     neighbor ssr peer-group
-     neighbor ssr ebgp-multihop 64
-     neighbor ssr update-source {{ mgmt_ip }}
-     neighbor ssr advertisement-interval 30
-     neighbor ssr timers connect 30
-     neighbor ssr bfd
-     {% for neighbor in neighbors -%}
-     neighbor {{ neighbor.ip }} peer-group ssr
-     neighbor {{ neighbor.ip }} remote-as {{ neighbor.as }}
-     {% endfor %}
+      bgp router-id {{ mgmt_ip }}
+      bgp log-neighbor-changes
+      no bgp ebgp-requires-policy
+      bgp graceful-restart preserve-fw-state
+      bgp bestpath compare-routerid
+      timers bgp 30 90
+      neighbor ssr peer-group
+      neighbor ssr ebgp-multihop 64
+      neighbor ssr update-source {{ mgmt_ip }}
+      neighbor ssr advertisement-interval 30
+      neighbor ssr timers connect 30
+      neighbor ssr bfd
+      {% for neighbor in neighbors -%}
+      neighbor {{ neighbor.ip }} peer-group ssr
+      neighbor {{ neighbor.ip }} remote-as {{ neighbor.as }}
+      {% endfor %}
 
-     address-family ipv4 unicast
-      network 10.212.0.0/24
-      #  neighbor ssr next-hop-self
-      neighbor ssr soft-reconfiguration inbound
-      neighbor ssr default-originate
-      maximum-paths 2
-      maximum-paths ibgp 2
-     exit-address-family
+      address-family ipv4 unicast
+        network 10.212.0.0/24
+        #  neighbor ssr next-hop-self
+        neighbor ssr soft-reconfiguration inbound
+        neighbor ssr default-originate
+        maximum-paths 2
+        maximum-paths ibgp 2
+      exit-address-family
 {% endblock %}
 
 {% block runcmd -%}
