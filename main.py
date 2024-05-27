@@ -104,6 +104,7 @@ def user(hostname):
                         conductor_ips=conductor_ips,
                         pre_runcmd=vm.get('pre_runcmd'),
                         post_runcmd=vm.get('post_runcmd'),
+                        write_files=vm.get('write_files'),
                         **addition_variables,
                     )
     return user_data
