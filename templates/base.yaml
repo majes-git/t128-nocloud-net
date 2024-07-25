@@ -12,12 +12,16 @@ write_files:
     network: {config: disabled}
 - path: /root/network.yaml
   content: |
-{% for file in write_files %}
-- {{ file }}
-{%- endfor -%}
-
 {{ network_config }}
-
+{%- if write_files -%}
+{% for file in write_files -%}
+- path: {{ file.path }}
+  content: |
+    {% for line in file.content -%}
+    {{ line }}
+    {%- endfor -%}
+{%- endfor -%}
+{%- endif %}
 {%- block write_files %}
 {%- endblock %}
 
