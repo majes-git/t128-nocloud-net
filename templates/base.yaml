@@ -14,7 +14,7 @@ write_files:
   content: |
 {{ network_config }}
 {%- if write_files -%}
-{% for file in write_files -%}
+{%- for file in write_files %}
 - path: {{ file.path }}
   content: |
     {%- for line in file.content.splitlines() %}
