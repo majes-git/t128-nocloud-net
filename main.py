@@ -141,7 +141,9 @@ def user(hostname):
                 except KeyError:
                     pass
                 template = env.get_template(vm_type)
-                addition_variables = {}
+                addition_variables = {
+                    'conductor_ips': conductor_ips,
+                }
                 addition_variables.update(deployment_config['global'])
                 if vm.get('template_variables'):
                     addition_variables.update(vm['template_variables'])
@@ -150,7 +152,6 @@ def user(hostname):
                         mgmt_ip=mgmt_ip,
                         deployment=deployment_name,
                         network_config=network_config,
-                        conductor_ips=conductor_ips,
                         pre_runcmd=vm.get('pre_runcmd'),
                         post_runcmd=vm.get('post_runcmd'),
                         write_files=vm.get('write_files'),
