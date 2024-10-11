@@ -2,17 +2,17 @@
 {%- block write_files %}
 - path: /root/initializer-preferences.json
   content: |
-    {"node-role": "conductor", "node-name": "node-a", "router-name": "{{ deployment }}-conductor",  "node-ip": "{{ mgmt_ip }}", "admin-password": "{{ admin_password }}"}
+    {"node-role": "conductor", "node-name": "node-a", "router-name": "{{ conductor_name }}",  "node-ip": "{{ mgmt_ip }}", "admin-password": "{{ admin_password }}"}
 - path: /root/base-config.pcli
   content: |
-    config authority router {{ deployment }}-conductor system inactivity-timer 86400
+    config authority router {{ conductor_name }} system inactivity-timer 86400
 {%- set nodes = ['a', 'b'] -%}
 {%- for conductor_ip in conductor_ips %}
-    config authority router {{ deployment }}-conductor node node-{{nodes[loop.index0]}} asset-id {{ deployment }}-conductor-{{nodes[loop.index0]}}
-    config authority router {{ deployment }}-conductor node node-{{nodes[loop.index0]}} device-interface mgmt1 interface-name     eth0
-    config authority router {{ deployment }}-conductor node node-{{nodes[loop.index0]}} device-interface mgmt1 forwarding         false
-    config authority router {{ deployment }}-conductor node node-{{nodes[loop.index0]}} device-interface mgmt1 network-interface mgmt1 type     fabric
-    config authority router {{ deployment }}-conductor node node-{{nodes[loop.index0]}} device-interface mgmt1 network-interface mgmt1 address {{ conductor_ip }} prefix-length  24
+    config authority router {{ conductor_name }} node node-{{nodes[loop.index0]}} asset-id {{ conductor_name }}-{{nodes[loop.index0]}}
+    config authority router {{ conductor_name }} node node-{{nodes[loop.index0]}} device-interface mgmt1 interface-name     eth0
+    config authority router {{ conductor_name }} node node-{{nodes[loop.index0]}} device-interface mgmt1 forwarding         false
+    config authority router {{ conductor_name }} node node-{{nodes[loop.index0]}} device-interface mgmt1 network-interface mgmt1 type     fabric
+    config authority router {{ conductor_name }} node node-{{nodes[loop.index0]}} device-interface mgmt1 network-interface mgmt1 address {{ conductor_ip }} prefix-length  24
 {%- endfor %}
     exit
     commit force
