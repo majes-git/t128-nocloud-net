@@ -1,6 +1,7 @@
 {% extends 'ssr-base.yaml' %}
 
 {%- block write_files %}
+{{ super() }}
 - path: /root/initializer-preferences.json
   content: |
     {"node-role": "conductor", "node-name": "node-b", "router-name": "{{ conductor_name }}",  "node-ip": "{{ mgmt_ip }}", "ha-peer-ip": "{{ conductor_ips[0] }}", "learn-from-ha-peer": true, "ha-peer-username": "{{ ha_peer_username }}", "unsafe-ha-peer-password": "{{ unsafe_ha_peer_password }}", "admin-password": "{{ admin_password }}"}

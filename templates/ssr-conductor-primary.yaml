@@ -1,5 +1,6 @@
 {% extends 'ssr-base.yaml' %}
 {%- block write_files %}
+{{ super() }}
 - path: /root/initializer-preferences.json
   content: |
     {"node-role": "conductor", "node-name": "node-a", "router-name": "{{ conductor_name }}",  "node-ip": "{{ mgmt_ip }}", "admin-password": "{{ admin_password }}"}
