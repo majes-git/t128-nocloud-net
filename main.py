@@ -133,6 +133,7 @@ def user(hostname):
             if host_byte > MAX_IP:
                 host_byte = host_byte % (MAX_IP - 1) + 2
             mgmt_ip = mgmt_ip_prefix.format(host_byte)
+            gateway4 = mgmt_ip_prefix.format(1)
             network_config = indent(get_network_config(deployment_config, vm_name, mgmt_ip), ' '*4)
             if vm_type:
                 conductor_ips = []
@@ -151,6 +152,7 @@ def user(hostname):
                 if template:
                     user_data += template.render(
                         mgmt_ip=mgmt_ip,
+                        gateway4=gateway4,
                         deployment=deployment_name,
                         network_config=network_config,
                         pre_runcmd=vm.get('pre_runcmd'),

@@ -14,6 +14,9 @@
     config authority router {{ conductor_name }} node node-{{nodes[loop.index0]}} device-interface mgmt1 forwarding         false
     config authority router {{ conductor_name }} node node-{{nodes[loop.index0]}} device-interface mgmt1 network-interface mgmt1 type     fabric
     config authority router {{ conductor_name }} node node-{{nodes[loop.index0]}} device-interface mgmt1 network-interface mgmt1 address {{ conductor_ip }} prefix-length  24
+{%- if gateway4 %}
+    config authority router {{ conductor_name }} node node-{{nodes[loop.index0]}} device-interface mgmt1 network-interface mgmt1 address {{ conductor_ip }} gateway {{ gateway4 }}
+{%- endif %}
 {%- endfor %}
     exit
     commit force
