@@ -1,11 +1,13 @@
 {% extends 'base.yaml' %}
 
 {%- block write_files %}
+{%- if root_ssh_key -%}
 - path: /home/t128/.ssh/authorized_keys
   permissions: '0600'
   owner: t128:t128
   content: |
     ssh-rsa {{ root_ssh_key }}
+{%- endif %}
 {%- endblock %}
 
 {% block runcmd -%}

@@ -20,10 +20,10 @@ write_files:
     {%- for line in file.content.splitlines() %}
     {{ line }}
     {%- endfor -%}
-  {%- if file.owner -%}
+  {%- if file.owner %}
   owner: {{ file.owner }}
   {%- endif %}
-  {%- if file.permissions -%}
+  {%- if file.permissions %}
   permissions: {{ file.permissions }}
   {%- endif %}
 {%- endfor -%}
