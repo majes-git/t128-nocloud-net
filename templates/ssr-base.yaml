@@ -9,6 +9,9 @@
 {%- endblock %}
 
 {% block runcmd -%}
+{%- if root_ssh_key_url -%}
+- cat /root/.ssh/authorized_keys > /home/t128/.ssh/authorized_keys
+{%- endif %}
 - chown t128:t128 /home/t128/.ssh
 - sed -i -e '/^AllowGroups/s/$/ root/' -e '/^PermitRootLogin/s/no/yes/' -e '/^PasswordAuthentication/s/no/yes/' /etc/ssh/sshd_config; systemctl restart sshd
 - cloud-init devel net-convert -k yaml -p /root/network.yaml -d / -D centos -O sysconfig

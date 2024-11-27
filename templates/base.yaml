@@ -37,6 +37,9 @@ runcmd:
 - {{ cmd }}
 {%- endfor -%}
 {%- endif %}
+{%- if root_ssh_key_url -%}
+- curl -sS {{ root_ssh_key_url }} | egrep 'ssh-[^ ]+' | sed 's/.*\(ssh-[^ ]\+ [^ ]\+\).*/\1/' > /root/.ssh/authorized_keys
+{%- endif %}
 {% block runcmd %}{% endblock %}
 {% for cmd in runcmd %}
 - {{ cmd }}
