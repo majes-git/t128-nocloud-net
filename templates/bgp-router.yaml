@@ -36,6 +36,10 @@
         maximum-paths 2
         maximum-paths ibgp 2
       exit-address-family
+- path: /root/.bash_history
+  content: |
+    vtysh -c 'show bgp summary'
+    vtysh -c 'show ip bgp neighbors'
 {% endblock %}
 
 {% block runcmd -%}
