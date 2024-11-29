@@ -108,6 +108,22 @@ def get_network_config(deployment_config, vm_name, mgmt_ip):
             return yaml.dump(network_config, sort_keys=False)
 
 
+def get_conductor_ips(deployment_config):
+    conductor_ips = []
+    try:
+        conductor_ips = deployment_config['global']['ssr']['conductor_ips']
+        return conductor_ips
+    except KeyError:
+        pass
+
+    for vm in deployment_config.get('vms'):
+        vm_id = vm.get('id')
+        vm_type = vm.get('type')
+        if vm_type in('ssr-conductor-primary', 'ssr-conductor-secondary'):
+            conductor_ips.append(mgmt_ip_prefix.format(vm_id))
+    return conductor_ips
+
+
 @app.route('/<hostname>/meta-data')
 def meta(hostname):
         return f'''instance-id: {hostname}
@@ -128,6 +144,7 @@ def user(hostname):
         vm_type = vm.get('type')
         vm_id = vm.get('id')
         deployment_name = deployment_config['deployment']
+
         if hostname == f'{vm_name}' or hostname == f'{deployment_name}-{vm_name}':
             host_byte = vm_id
             if host_byte > MAX_IP:
@@ -136,29 +153,24 @@ def user(hostname):
             gateway4 = mgmt_ip_prefix.format(1)
             network_config = indent(get_network_config(deployment_config, vm_name, mgmt_ip), ' '*4)
             if vm_type:
-                conductor_ips = []
-                try:
-                    conductor_ips = [mgmt_ip_prefix.format(c) for c in deployment_config['global']['ssr']['conductor']]
-                except KeyError:
-                    pass
+                conductor_ips = get_conductor_ips(deployment_config)
                 template = env.get_template(vm_type)
-                addition_variables = {
+                additional_variables = {
                     'conductor_ips': conductor_ips,
                     'conductor_name': f'{deployment_name}-conductor',
                 }
-                addition_variables.update(deployment_config['global'])
+                additional_variables.update(deployment_config['global'])
                 if vm.get('template_variables'):
-                    addition_variables.update(vm['template_variables'])
+                    additional_variables.update(vm['template_variables'])
                 if template:
                     user_data += template.render(
                         mgmt_ip=mgmt_ip,
-                        gateway4=gateway4,
                         deployment=deployment_name,
                         network_config=network_config,
                         pre_runcmd=vm.get('pre_runcmd'),
                         post_runcmd=vm.get('post_runcmd'),
                         write_files=vm.get('write_files'),
-                        **addition_variables,
+                        **additional_variables,
                     )
     return user_data
 

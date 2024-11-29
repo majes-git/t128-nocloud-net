@@ -2,7 +2,9 @@
 
 {%- block write_files %}
 {{ super() }}
+{%- if node_ips %}{% set node_ip = node_ips[1] %}{% set ha_peer_ip = node_ips[0] %}{% else %}{% set node_ip = mgmt_ip %}{% endif -%}
+{%- if not ha_peer_ip %}{% set ha_peer_ip = conductor_ips[0] %}{% endif -%}
 - path: /root/initializer-preferences.json
   content: |
-    {"node-role": "conductor", "node-name": "node-b", "router-name": "{{ conductor_name }}",  "node-ip": "{{ mgmt_ip }}", "ha-peer-ip": "{{ conductor_ips[0] }}", "learn-from-ha-peer": true, "ha-peer-username": "{{ ha_peer_username }}", "unsafe-ha-peer-password": "{{ unsafe_ha_peer_password }}", "admin-password": "{{ admin_password }}"}
+    {"node-role": "conductor", "node-name": "node-b", "router-name": "{{ conductor_name }}",  "node-ip": "{{ node_ip }}", "ha-peer-ip": "{{ ha_peer_ip }}", "learn-from-ha-peer": true, "ha-peer-username": "{{ ha_peer_username }}", "unsafe-ha-peer-password": "{{ unsafe_ha_peer_password }}", "admin-password": "{{ admin_password }}"}
 {% endblock %}

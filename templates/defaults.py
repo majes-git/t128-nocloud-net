@@ -8,10 +8,5 @@ defaults = {
         'options': {
             'citype': 'nocloud',
         },
-        'ssr': {
-            'conductor': [
-                101,
-            ],
-        },
     },
 }

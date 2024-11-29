@@ -1,22 +1,20 @@
 {% extends 'ssr-base.yaml' %}
 {%- block write_files %}
 {{ super() }}
+{%- if node_ips %}{% set node_ip = node_ips[0] %}{% else %}{% set node_ip = mgmt_ip %}{% endif -%}
 - path: /root/initializer-preferences.json
   content: |
-    {"node-role": "conductor", "node-name": "node-a", "router-name": "{{ conductor_name }}",  "node-ip": "{{ mgmt_ip }}", "admin-password": "{{ admin_password }}"}
+    {"node-role": "conductor", "node-name": "node-a", "router-name": "{{ conductor_name }}",  "node-ip": "{{ node_ip }}", "admin-password": "{{ admin_password }}"}
 - path: /root/base-config.pcli
   content: |
     config authority router {{ conductor_name }} system inactivity-timer 86400
 {%- set nodes = ['a', 'b'] -%}
-{%- for conductor_ip in conductor_ips %}
+{%- for ha_node_ip in node_ips %}
     config authority router {{ conductor_name }} node node-{{nodes[loop.index0]}} asset-id {{ conductor_name }}-{{nodes[loop.index0]}}
-    config authority router {{ conductor_name }} node node-{{nodes[loop.index0]}} device-interface mgmt1 interface-name     eth0
-    config authority router {{ conductor_name }} node node-{{nodes[loop.index0]}} device-interface mgmt1 forwarding         false
-    config authority router {{ conductor_name }} node node-{{nodes[loop.index0]}} device-interface mgmt1 network-interface mgmt1 type     fabric
-    config authority router {{ conductor_name }} node node-{{nodes[loop.index0]}} device-interface mgmt1 network-interface mgmt1 address {{ conductor_ip }} prefix-length  24
-{%- if gateway4 %}
-    config authority router {{ conductor_name }} node node-{{nodes[loop.index0]}} device-interface mgmt1 network-interface mgmt1 address {{ conductor_ip }} gateway {{ gateway4 }}
-{%- endif %}
+    config authority router {{ conductor_name }} node node-{{nodes[loop.index0]}} device-interface ha-sync interface-name eth1
+    config authority router {{ conductor_name }} node node-{{nodes[loop.index0]}} device-interface ha-sync forwarding false
+    config authority router {{ conductor_name }} node node-{{nodes[loop.index0]}} device-interface ha-sync network-interface ha-sync type fabric
+    config authority router {{ conductor_name }} node node-{{nodes[loop.index0]}} device-interface ha-sync network-interface ha-sync address {{ ha_node_ip }} prefix-length 30
 {%- endfor %}
     exit
     commit force
@@ -24,6 +22,5 @@
 
 {% block runcmd -%}
 {{ super() }}
-- echo "iptables -I INPUT 1 -p tcp --dport 22 -i eth1 -j REJECT" >> /etc/rc.d/rc.local; chmod +x /etc/rc.d/rc.local; /etc/rc.d/rc.local
 - sleep 60; if [ -e /root/base-config.pcli ]; then sudo -u admin pcli < /root/base-config.pcli; fi
 {%- endblock %}
