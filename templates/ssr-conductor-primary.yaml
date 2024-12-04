@@ -11,6 +11,7 @@
 {%- set nodes = ['a', 'b'] -%}
 {%- for ha_node_ip in node_ips %}
     config authority router {{ conductor_name }} node node-{{nodes[loop.index0]}} asset-id {{ conductor_name }}-{{nodes[loop.index0]}}
+    config authority router {{ conductor_name }} node node-{{nodes[loop.index0]}} role conductor
     config authority router {{ conductor_name }} node node-{{nodes[loop.index0]}} device-interface ha-sync interface-name eth1
     config authority router {{ conductor_name }} node node-{{nodes[loop.index0]}} device-interface ha-sync forwarding false
     config authority router {{ conductor_name }} node node-{{nodes[loop.index0]}} device-interface ha-sync network-interface ha-sync type fabric

@@ -158,6 +158,8 @@ def user(hostname):
                 additional_variables = {
                     'conductor_ips': conductor_ips,
                     'conductor_name': f'{deployment_name}-conductor',
+                    'hostname': hostname,
+                    'vm_type': vm_type,
                 }
                 additional_variables.update(deployment_config['global'])
                 if vm.get('template_variables'):

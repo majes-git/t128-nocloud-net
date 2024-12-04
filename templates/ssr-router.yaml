@@ -4,5 +4,48 @@
 {{ super() }}
 - path: /root/initializer-preferences.json
   content: |
-    {"node-role": "combo", "node-ip": "127.0.0.1", "node-name": "dummy-node", "router-name": "dummy-router", "conductor": {"primary": {"ip": "{{ conductor_ips[0] }}"}}, "admin-password": "{{ admin_password }}"}
+    {"node-role": "combo", "node-ip": "127.0.0.1", "node-name": "dummy-node", "router-name": "dummy-router", "conductor": {"primary": {"ip": "{{ conductor_ips[0] }}"}{% if conductor_ips | length == 2 %}, "secondary": {"ip": "{{ conductor_ips[1] }}"}{% endif %}}, "admin-password": "{{ admin_password }}"}
+- path: /etc/128T-hardware-bootstrapper/onboarding-config.json
+  content: |
+    {
+      "name": "{{ hostname }}",
+      "mode": "conductor-managed",
+      "conductor-hosts": [
+          "{{ conductor_ips[0] }}"{% if conductor_ips | length == 2 %}, "{{ conductor_ips[1] }}"{% endif %}
+      ]
+    }
+- path: /usr/local/sbin/cleanup-ssr.sh
+  content: |
+    #!/bin/sh
+    hostname="$(sed 's|.*/\(.*\)/|\1|' /sys/class/dmi/id/product_serial)"
+    if [ "$(hostname | cut -b-13)" = "dsnocloud-net" ]; then hostnamectl set-hostname $hostname; fi
+    sleep 300
+    sed -i '/ge-0-0/d' /etc/udev/rules.d/128-persistent-net.rules
+    sed -i '/ge-0-0/d' /etc/128T-hardware-bootstrapper/config.json
+    rm -f /etc/sysconfig/network-scripts/ifcfg-ge-0-0
+    ip link set down dev ge-0-0
+    ip link set name eth0 dev ge-0-0
+    systemctl restart NetworkManager
+    ifdown eth0; ifup eth0
+  owner: 'root:root'
+  permissions: '0700'
+- path: /lib/systemd/system/cleanup-ssr.service
+  content: |
+    [Unit]
+    Description=Run cleanup-ssr at boot
+    After=128T.service
+
+    [Service]
+    Type=oneshot
+    ExecStart=/usr/local/sbin/cleanup-ssr.sh
+    RemainAfterExit=true
+    StandardOutput=journal
+
+    [Install]
+    WantedBy=multi-user.target
 {% endblock %}
+
+{% block runcmd -%}
+{{ super() }}
+- systemctl enable cleanup-ssr
+{%- endblock %}
