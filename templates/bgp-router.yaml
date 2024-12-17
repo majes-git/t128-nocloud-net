@@ -29,7 +29,9 @@
       {% endfor %}
 
       address-family ipv4 unicast
-        network 10.212.0.0/24
+        {%- for prefix in prefixes %}
+        network {{ prefix }}
+        {%- endfor %}
         #  neighbor ssr next-hop-self
         neighbor ssr soft-reconfiguration inbound
         neighbor ssr default-originate
