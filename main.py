@@ -89,6 +89,7 @@ def get_network_config(deployment_config, vm_name, mgmt_ip):
             i = 1
             for network in vm.get('networks', []):
                 interface = f'eth{i}'
+                i += 1
                 elements = network.split(',')
                 if len(elements) == 1:
                     continue
@@ -104,7 +105,6 @@ def get_network_config(deployment_config, vm_name, mgmt_ip):
                             destination, via = route.split('->')
                             nc['routes'].append({'to': destination, 'via': via})
                 network_config['network']['ethernets'][interface] = nc
-                i += 1
             return yaml.dump(network_config, sort_keys=False)
 
 
