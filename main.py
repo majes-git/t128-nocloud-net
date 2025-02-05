@@ -96,7 +96,11 @@ def get_network_config(deployment_config, vm_name, mgmt_ip):
                 nc = {}
                 for e in range(1, len(elements)):
                     if e == 1:
-                        nc['addresses'] = [elements[1]]
+                        address = elements[1]
+                        if address == 'dhcp':
+                            nc['dhcp4'] = True
+                        else:
+                            nc['addresses'] = [address]
                     if e == 2 and elements[2]:
                         nc['gateway4'] = elements[2]
                     if e == 3 and elements[3]:
