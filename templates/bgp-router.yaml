@@ -19,7 +19,7 @@
       timers bgp 30 90
       neighbor ssr peer-group
       neighbor ssr ebgp-multihop 64
-      neighbor ssr update-source {{ mgmt_ip }}
+      #neighbor ssr update-source {{ mgmt_ip }}
       neighbor ssr advertisement-interval 30
       neighbor ssr timers connect 30
       neighbor ssr bfd
