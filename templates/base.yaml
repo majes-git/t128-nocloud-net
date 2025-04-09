@@ -49,3 +49,5 @@ runcmd:
 - {{ cmd }}
 {% endfor %}
 {%- endif -%}
+
+{% block extra_user_data %}{% endblock %}
