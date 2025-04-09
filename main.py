@@ -90,7 +90,7 @@ def get_network_config(deployment_config, vm_name, mgmt_ip):
             for network in vm.get('networks', []):
                 interface = f'eth{i}'
                 i += 1
-                elements = network.split(',')
+                elements = str(network).split(',')
                 if len(elements) == 1:
                     continue
                 nc = {}
