@@ -1,0 +1,78 @@
+{% extends 'ssr-base-hwb.yaml' %}
+{%- block write_files %}
+{{ super() }}
+- path: /etc/128T-hardware-bootstrapper/onboarding-config.json
+  content: |
+    {
+      "name": "{{ conductor_name }}",
+      "mode": "conductor",
+      "admin-password": "{{ admin_password }}",
+      "interface-name": "ge-0-0",
+      "node-name": "node0",
+      "node-ip": "{{ mgmt_ip }}/24",
+      "node-gateway": "{{ mgmt_gateway }}",
+      {%- if node_ips %}
+      "clustered": true,
+      "ha-interface-name": "ge-0-1",
+      "ha-ip": "{{ node_ips[0] }}/30",
+      "ha-peer-ip": "{{ node_ips[1] }}",
+      "ha-peer-name": "node1",
+      {% endif -%}
+      "dns-servers": [
+        "8.8.8.8",
+        "1.1.1.1"
+      ]
+    }
+{%- if not node_ips %}{% set node_ips = [mgmt_ip] %}{% endif %}
+- path: /root/base-config.pcli
+  content: |
+    config authority router {{ conductor_name }} system inactivity-timer 86400
+{%- for _ in node_ips %}
+    config authority router {{ conductor_name }} node node{{ loop.index0 }} asset-id {{ conductor_name }}-{{ node_names[loop.index0] }}
+    config authority router {{ conductor_name }} node node{{ loop.index0 }} role conductor
+{%- endfor %}
+    exit
+    commit force
+- path: /srv/salt/top.sls
+  content: |
+    base:
+      '*':
+        - dummy
+      '*router*':
+        - fix-oob
+- path: /srv/salt/fix-oob.sls
+  content: |
+    Write fix-oob script:
+      file.managed:
+        - name: /usr/local/sbin/fix-oob.sh
+        - mode: 0755
+        - contents: |
+            #!/bin/bash
+            # This script allows to have an OOB network interface on routers after
+            # onboarding to a conductor has finished. During onboarding the ifcfg file
+            # is still managed by SSR as part of the onboarding interfaces (DPDK bound).
+
+            old_sum=$(md5sum < /etc/sysconfig/network-scripts/ifcfg-ge-0-0)
+            cloud-init devel net-convert -k yaml -p /root/network.yaml -d / -D centos -O sysconfig
+            new_sum=$(md5sum < /etc/sysconfig/network-scripts/ifcfg-ge-0-0)
+            if [ "$old_sum" != "$new_sum" ]; then
+                for iface in ge-0-0; do
+                    ifdown $iface
+                    ifup $iface
+                done
+            fi
+
+    Call fix-oob script:
+      cmd.run:
+        - name: /usr/local/sbin/fix-oob.sh
+{% endblock %}
+
+{% block second_boot_extra %}
+    while ! curl -s -k -I https://127.0.0.1/ >/dev/null; do echo "Waiting for the SSR API to be ready..."; sleep 30; done
+    if [ -e /root/base-config.pcli ]; then sudo -u admin pcli < /root/base-config.pcli; fi
+    curl -sS -o /root/routers.pcli "https://nextcloud.128tech.de/s/sF8eidxsQQLZsb4/download?path=%2Fsvrv2&files=routers.pcli"
+    if [ -e /root/routers.pcli ]; then sudo -u admin pcli < /root/routers.pcli; fi
+{% endblock %}
+
+{% block extra_runcmd -%}
+{%- endblock %}

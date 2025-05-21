@@ -21,7 +21,7 @@
     commit force
 {% endblock %}
 
-{% block runcmd -%}
+{% block extra_runcmd -%}
 {{ super() }}
 - sleep 60; if [ -e /root/base-config.pcli ]; then sudo -u admin pcli < /root/base-config.pcli; fi
 {%- endblock %}

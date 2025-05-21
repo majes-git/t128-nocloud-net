@@ -1,0 +1,31 @@
+{% extends 'ssr-base-hwb.yaml' %}
+
+{%- block write_files %}
+{{ super() }}
+- path: /etc/128T-hardware-bootstrapper/onboarding-config.json
+  content: |
+    {
+      "name": "{{ hostname }}",
+      "mode": "conductor-managed",
+      "conductor-hosts": [
+          "{{ conductor_ips[0] }}"{% if conductor_ips | length == 2 %}, "{{ conductor_ips[1] }}"{% endif %}
+      ]
+    }
+- path: /etc/128T-hardware-bootstrapper/devicemap.json
+  content: |
+    {
+      "interfaceMap": {
+        "QEMU": {
+          "VM": {
+            "ethernet": [
+              {
+                "pciAddress": "0000:00:12.0",
+                "type": "MGMT",
+                "name": "ge-0-0"
+              }
+            ]
+          }
+        }
+      }
+    }
+{% endblock %}

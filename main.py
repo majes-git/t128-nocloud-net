@@ -81,7 +81,7 @@ def get_network_config(deployment_config, vm_name, mgmt_ip):
             vm_id = vm.get('id')
             network_config['network']['ethernets']['eth0'] = {
                  'addresses': [ mgmt_ip + '/24' ],
-                 'gateway4': mgmt_ip_prefix.format(1),
+                 'gateway4': mgmt_gateway,
                  'nameservers': {
                     'addresses': DEFAULT_DNS,
                  },
@@ -138,9 +138,11 @@ local-hostname: {hostname}
 @app.route('/<hostname>/user-data')
 def user(hostname):
     global mgmt_ip_prefix
+    global mgmt_gateway
     deployment_config = defaults
     update(deployment_config, load_deployment(app.config['DEPLOYMENT_URL']))
     mgmt_ip_prefix = deployment_config['global']['mgmt_ip_prefix'].strip('.') + '.{}'
+    mgmt_gateway = deployment_config['global']['mgmt_gateway']
 
     user_data = ''
     for vm in deployment_config.get('vms'):
@@ -154,7 +156,6 @@ def user(hostname):
             if host_byte > MAX_IP:
                 host_byte = host_byte % (MAX_IP - 1) + 2
             mgmt_ip = mgmt_ip_prefix.format(host_byte)
-            gateway4 = mgmt_ip_prefix.format(1)
             network_config = indent(get_network_config(deployment_config, vm_name, mgmt_ip), ' '*4)
             if vm_type:
                 conductor_ips = get_conductor_ips(deployment_config)

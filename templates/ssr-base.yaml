@@ -16,9 +16,11 @@
 {%- endif %}
 - chown t128:t128 /home/t128/.ssh
 - sed -i -e '/^AllowGroups/s/$/ root/' -e '/^PermitRootLogin/s/no/yes/' -e '/^PasswordAuthentication/s/no/yes/' /etc/ssh/sshd_config; systemctl restart sshd
+- echo '{{ t128_password }}' | passwd --stdin t128
+{% block extra_runcmd -%}
 - cloud-init devel net-convert -k yaml -p /root/network.yaml -d / -D centos -O sysconfig
 - for interface in $(cd /etc/sysconfig/network-scripts/; ls -1 ifcfg-eth* | sed 's/ifcfg-//'); do ifdown $interface; ifup $interface; done
 - {% if vm_type == "ssr-router" %}lvdisplay /dev/vg00/altroot > /dev/null 2>&1 || {% endif %}initialize128t -p /root/initializer-preferences.json
-- echo '{{ t128_password }}' | passwd --stdin t128
 - systemctl enable 128T; systemctl start 128T
+{%- endblock %}
 {%- endblock %}

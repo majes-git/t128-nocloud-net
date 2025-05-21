@@ -1,0 +1,28 @@
+{% extends 'ssr-base-hwb.yaml' %}
+
+{%- block write_files %}
+{{ super() }}
+- path: /etc/128T-hardware-bootstrapper/onboarding-config.json
+  content: |
+    {
+      "name": "{{ conductor_name }}",
+      "mode": "conductor",
+      "admin-password": "{{ admin_password }}",
+      "interface-name": "ge-0-0",
+      "node-name": "node1",
+      "node-ip": "{{ mgmt_ip }}/24",
+      "node-gateway": "{{ mgmt_gateway }}",
+      "clustered": true,
+      "ha-interface-name": "ge-0-1",
+      "ha-ip": "{{ node_ips[1] }}/30",
+      "ha-peer-ip": "{{ node_ips[0] }}",
+      "ha-peer-name": "node0",
+      "learn-from-ha-peer": true,
+      "ha-peer-username": "t128",
+      "unsafe-ha-peer-password": "{{ t128_password }}",
+      "dns-servers": [
+        "8.8.8.8",
+        "1.1.1.1"
+      ]
+    }
+{% endblock %}

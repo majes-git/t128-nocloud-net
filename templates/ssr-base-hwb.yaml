@@ -1,0 +1,28 @@
+{% extends 'ssr-base.yaml' %}
+
+{%- block write_files %}
+{{ super() }}
+- path: /var/lib/cloud/scripts/per-boot/second-boot.sh
+  permissions: "0755"
+  content: |
+    #!/bin/bash
+    # This script runs provisioning tasks as part of the cloud-init process.
+    # Because of the (intented) automatic reboot by 128T-hardware-bootstrapper
+    # some tasks need to be completed by this script at the second boot.
+
+    # too early - do not process this script during first boot
+    if [ ! -e /var/log/128T-hardware-bootstrapper/128T-hardware-bootstrapper.json ]; then exit 0; fi
+
+    # run this script only once
+    if [ -e /var/lib/cloud/data/second-boot.finished ]; then exit 0; fi
+
+    hostnamectl set-hostname {{ hostname }}
+    echo {{ hostname }} > /etc/salt/minion_id
+    systemctl restart salt-minion
+    touch /var/lib/cloud/data/second-boot.finished
+    {% block second_boot_extra -%}
+    {%- endblock %}
+{%- endblock %}
+
+{% block extra_runcmd -%}
+{%- endblock %}
