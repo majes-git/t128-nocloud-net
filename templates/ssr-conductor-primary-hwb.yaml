@@ -7,6 +7,8 @@
       "name": "{{ conductor_name }}",
       "mode": "conductor",
       "admin-password": "{{ admin_password }}",
+      "root-password": "{{ root_password }}",
+      "t128-password": "{{ t128_password }}",
       "interface-name": "ge-0-0",
       "node-name": "node0",
       "node-ip": "{{ mgmt_ip }}/24",
@@ -52,14 +54,13 @@
             # onboarding to a conductor has finished. During onboarding the ifcfg file
             # is still managed by SSR as part of the onboarding interfaces (DPDK bound).
 
-            old_sum=$(md5sum < /etc/sysconfig/network-scripts/ifcfg-ge-0-0)
+            interface=ge-0-0
+            old_sum=$(md5sum < /etc/sysconfig/network-scripts/ifcfg-$interface)
             cloud-init devel net-convert -k yaml -p /root/network.yaml -d / -D centos -O sysconfig
-            new_sum=$(md5sum < /etc/sysconfig/network-scripts/ifcfg-ge-0-0)
+            new_sum=$(md5sum < /etc/sysconfig/network-scripts/ifcfg-$interface)
             if [ "$old_sum" != "$new_sum" ]; then
-                for iface in ge-0-0; do
-                    ifdown $iface
-                    ifup $iface
-                done
+                ifdown $interface
+                ifup   $interface
             fi
 
     Call fix-oob script:

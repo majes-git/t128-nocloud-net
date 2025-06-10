@@ -17,7 +17,7 @@
     if [ -e /var/lib/cloud/data/second-boot.finished ]; then exit 0; fi
 
     hostnamectl set-hostname {{ hostname }}
-    echo {{ hostname }} > /etc/salt/minion_id
+    {% if vm_type != "ssr-mist-managed" %}echo {{ hostname }} > /etc/salt/minion_id{% endif %}
     systemctl restart salt-minion
     touch /var/lib/cloud/data/second-boot.finished
     {% block second_boot_extra -%}

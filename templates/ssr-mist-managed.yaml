@@ -1,0 +1,68 @@
+{% extends 'ssr-base-hwb.yaml' %}
+{%- block write_files %}
+{{ super() }}
+- path: /etc/128T-hardware-bootstrapper/onboarding-config.json
+  content: |
+    {
+      "name": "{{ hostname }}",
+      "mode": "mist-managed",
+      "registration-code": "{{ registration_code }}",
+      "devicemap": {
+        "ethernet": [
+          {
+            "pciAddress": "0000:00:12.0",
+            "name": "mgmt-0-0",
+            "type": "MGMT",
+            "description": "MGMT network interface",
+            "bcpNetwork": {
+              "virtualHubDevice": {
+                "description": "MGMT network interface",
+                "name": "mgmt"
+              }
+            },
+            "speed": 1000
+          },
+          {
+            "pciAddress": "0000:00:13.0",
+            "name": "ge-0-1",
+            "type": "WAN",
+            "description": "WAN1 network interface",
+            "bcpNetwork": {
+              "standaloneBranch": {
+                "name": "wan1",
+                "description": "WAN1 network interface"
+              }
+            },
+            "speed": 1000
+          },
+          {
+            "pciAddress": "0000:00:14.0",
+            "name": "ge-0-2",
+            "type": "LAN",
+            "description": "LAN1 network interface",
+            "bcpNetwork": {
+              "standaloneBranch": {
+                "name": "lan1",
+                "description": "LAN1 network interface"
+              }
+            },
+            "speed": 1000
+          }
+        ]
+      }
+    }
+{% endblock %}
+
+{% block second_boot_extra %}
+    interface=mgmt-0-0
+    old_sum=$(md5sum < /etc/sysconfig/network-scripts/ifcfg-$interface)
+    cloud-init devel net-convert -k yaml -p /root/network.yaml -d / -D centos -O sysconfig
+    new_sum=$(md5sum < /etc/sysconfig/network-scripts/ifcfg-$interface)
+    if [ "$old_sum" != "$new_sum" ]; then
+        ifdown $interface
+        ifup   $interface
+    fi
+{% endblock %}
+
+{% block extra_runcmd -%}
+{%- endblock %}
