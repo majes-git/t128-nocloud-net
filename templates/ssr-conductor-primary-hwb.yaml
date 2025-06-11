@@ -71,7 +71,7 @@
 {% block second_boot_extra %}
     while ! curl -s -k -I https://127.0.0.1/ >/dev/null; do echo "Waiting for the SSR API to be ready..."; sleep 30; done
     if [ -e /root/base-config.pcli ]; then sudo -u admin pcli < /root/base-config.pcli; fi
-    curl -sS -o /root/routers.pcli "https://nextcloud.128tech.de/s/sF8eidxsQQLZsb4/download?path=%2Fsvrv2&files=routers.pcli"
+    curl -sS -o /root/routers.pcli "{{ base_url }}routers.pcli"
     if [ -e /root/routers.pcli ]; then sudo -u admin pcli < /root/routers.pcli; fi
 {% endblock %}
 

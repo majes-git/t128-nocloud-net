@@ -173,6 +173,7 @@ def user(hostname):
                     user_data += template.render(
                         mgmt_ip=mgmt_ip,
                         deployment=deployment_name,
+                        base_url=app.config['DEPLOYMENT_URL'].strip('deployment.yaml'),
                         network_config=network_config,
                         pre_runcmd=vm.get('pre_runcmd'),
                         post_runcmd=vm.get('post_runcmd'),
