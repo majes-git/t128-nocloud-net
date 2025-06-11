@@ -11,5 +11,10 @@ defaults = {
         'options': {
             'citype': 'nocloud',
         },
+        'ssr': {
+            'conductor_ips': [
+                '100.100.100.101',
+            ],
+        },
     },
 }
