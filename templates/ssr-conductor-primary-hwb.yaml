@@ -66,6 +66,31 @@
     Call fix-oob script:
       cmd.run:
         - name: /usr/local/sbin/fix-oob.sh
+
+- path: /var/lib/cloud/scripts/per-boot/after-initialization.sh
+  permissions: "0755"
+  content: |
+    #!/bin/bash
+    # This script runs provisioning tasks as part of the cloud-init process.
+    # Because of the (intented) automatic reboot by 128T-hardware-bootstrapper
+    # some tasks need to be completed by this script after conductor initialization.
+    if [ -e /etc/128technology/global.init ]; then
+        tempdir=$(mktemp -d)
+        interfaces="$(sed -n '/ge-0/s/.*\(ge-0-.\).*/\1/p' /root/network.yaml)"
+        for interface in $interfaces; do
+            cp /etc/sysconfig/network-scripts/ifcfg-$interface $tempdir
+        done
+
+        cloud-init devel net-convert -k yaml -p /root/network.yaml -d / -D centos -O sysconfig
+
+        for interface in $interfaces; do
+            if ! diff -q /etc/sysconfig/network-scripts/ifcfg-$interface $tempdir/ifcfg-$interface >/dev/null; then
+                ifdown $interface
+                ifup   $interface
+            fi
+        done
+        rm -rf $tempdir
+    fi
 {% endblock %}
 
 {% block second_boot_extra %}
@@ -74,6 +99,3 @@
     curl -sS -o /root/routers.pcli "{{ base_url }}routers.pcli"
     if [ -e /root/routers.pcli ]; then sudo -u admin pcli < /root/routers.pcli; fi
 {% endblock %}
-
-{% block extra_runcmd -%}
-{%- endblock %}

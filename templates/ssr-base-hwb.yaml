@@ -25,4 +25,5 @@
 {%- endblock %}
 
 {% block extra_runcmd -%}
+- sed -i 's/eth\([0-9]\)/ge-0-\1/' /root/network.yaml
 {%- endblock %}
