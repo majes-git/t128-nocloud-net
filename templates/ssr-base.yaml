@@ -19,7 +19,7 @@
 - chown t128:t128 /home/t128/.ssh
 - sed -i -e '/^AllowGroups/s/$/ root/' -e '/^PermitRootLogin/s/no/yes/' -e '/^PasswordAuthentication/s/no/yes/' /etc/ssh/sshd_config; systemctl restart sshd
 - echo '{{ t128_password }}' | passwd --stdin t128
-- echo 'vm_type: {{ vm_type }}' >> /etc/salt/grains
+- 'echo vm_type: {{ vm_type }} >> /etc/salt/grains'
 {% block extra_runcmd -%}
 - cloud-init devel net-convert -k yaml -p /root/network.yaml -d / -D centos -O sysconfig
 - for interface in $(cd /etc/sysconfig/network-scripts/; ls -1 ifcfg-eth* | sed 's/ifcfg-//'); do ifdown $interface; ifup $interface; done
