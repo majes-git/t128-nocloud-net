@@ -12,7 +12,6 @@ from jinja2 import Environment, FunctionLoader
 from textwrap import indent
 
 from templates.defaults import defaults
-from turtledemo.chaos import line
 
 DEFAULT_DNS = [ '8.8.8.8', '1.1.1.1' ]
 MAX_IP = 250
