@@ -40,7 +40,7 @@
     base:
       '*':
         - dummy
-      '*router*':
+      'G@vm_type:*router*':
         - fix-oob
 - path: /srv/salt/fix-oob.sls
   content: |
@@ -55,6 +55,9 @@
             # is still managed by SSR as part of the onboarding interfaces (DPDK bound).
 
             interface=ge-0-0
+            # check if interface exists or exit
+            ip address ls dev $interface > /dev/null 2>&1 || exit 0
+
             old_sum=$(md5sum < /etc/sysconfig/network-scripts/ifcfg-$interface)
             cloud-init devel net-convert -k yaml -p /root/network.yaml -d / -D centos -O sysconfig
             new_sum=$(md5sum < /etc/sysconfig/network-scripts/ifcfg-$interface)
