@@ -5,7 +5,9 @@ password: {{ root_password }}
 chpasswd:
   expire: False
 ssh_authorized_keys:
-- ssh-rsa {{ root_ssh_key }}
+{%- for key in root_ssh_keys %}
+- {{ key }}
+{%- endfor %}
 write_files:
 - path: /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg
   content: |

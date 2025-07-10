@@ -12,6 +12,7 @@ from jinja2 import Environment, FunctionLoader
 from textwrap import indent
 
 from templates.defaults import defaults
+from turtledemo.chaos import line
 
 DEFAULT_DNS = [ '8.8.8.8', '1.1.1.1' ]
 MAX_IP = 250
@@ -143,6 +144,15 @@ def user(hostname):
     update(deployment_config, load_deployment(app.config['DEPLOYMENT_URL']))
     mgmt_ip_prefix = deployment_config['global']['mgmt_ip_prefix'].strip('.') + '.{}'
     mgmt_gateway = deployment_config['global']['mgmt_gateway']
+    root_ssh_key = deployment_config.get('root_ssh_key')
+    root_ssh_keys = []
+    if root_ssh_key:
+        if root_ssh_key.startswith('http'):
+            r = requests.get(root_ssh_key)
+            if r.status_code == 200:
+                root_ssh_keys.extend(r.text.splitlines())
+        else:
+            root_ssh_keys = [root_ssh_key]
 
     user_data = ''
     for vm in deployment_config.get('vms'):
@@ -165,6 +175,7 @@ def user(hostname):
                     'conductor_name': f'{deployment_name}-conductor',
                     'hostname': hostname,
                     'vm_type': vm_type,
+                    'root_ssh_keys': root_ssh_keys,
                 }
                 additional_variables.update(deployment_config['global'])
                 if vm.get('template_variables'):
