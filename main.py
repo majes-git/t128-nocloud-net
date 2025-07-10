@@ -144,7 +144,7 @@ def user(hostname):
     update(deployment_config, load_deployment(app.config['DEPLOYMENT_URL']))
     mgmt_ip_prefix = deployment_config['global']['mgmt_ip_prefix'].strip('.') + '.{}'
     mgmt_gateway = deployment_config['global']['mgmt_gateway']
-    root_ssh_key = deployment_config.get('root_ssh_key')
+    root_ssh_key = deployment_config['global'].get('root_ssh_key')
     root_ssh_keys = []
     if root_ssh_key:
         if root_ssh_key.startswith('http'):
