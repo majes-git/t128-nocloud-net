@@ -7,7 +7,9 @@
     {
       "name": "{{ conductor_name }}",
       "mode": "conductor",
-      "admin-password": "{{ admin_password }}",
+      "admin-password": "{{ passwords['admin'].hash }}",
+      "root-password": "{{ passwords['root'].hash }}",
+      "t128-password": "{{ passwords['t128'].hash }}",
       "interface-name": "ge-0-0",
       "node-name": "node1",
       "node-ip": "{{ mgmt_ip }}/24",
@@ -19,7 +21,7 @@
       "ha-peer-name": "node0",
       "learn-from-ha-peer": true,
       "ha-peer-username": "t128",
-      "unsafe-ha-peer-password": "{{ t128_password }}",
+      "unsafe-ha-peer-password": "{{ passwords['t128'].plain }}",
       "dns-servers": [
         "8.8.8.8",
         "1.1.1.1"

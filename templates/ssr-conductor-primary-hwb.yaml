@@ -6,9 +6,9 @@
     {
       "name": "{{ conductor_name }}",
       "mode": "conductor",
-      "admin-password": "{{ admin_password }}",
-      "root-password": "{{ root_password }}",
-      "t128-password": "{{ t128_password }}",
+      "admin-password": "{{ passwords['admin'].hash }}",
+      "root-password": "{{ passwords['root'].hash }}",
+      "t128-password": "{{ passwords['t128'].hash }}",
       "interface-name": "ge-0-0",
       "node-name": "node0",
       "node-ip": "{{ mgmt_ip }}/24",

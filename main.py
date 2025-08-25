@@ -9,6 +9,7 @@ import sys
 import yaml
 from flask import Flask, render_template, render_template_string
 from jinja2 import Environment, FunctionLoader
+from passlib.hash import sha512_crypt
 from textwrap import indent
 
 from templates.defaults import defaults
@@ -17,6 +18,35 @@ DEFAULT_DNS = [ '8.8.8.8', '1.1.1.1' ]
 MAX_IP = 250
 
 app = Flask(__name__)
+
+
+class Password(object):
+    plain = ""
+    hash = ""
+
+    def __init__(self, _str):
+        if Password.is_hashed(_str):
+            self.set_hashed(_str)
+        else:
+            self.set_plain(_str)
+
+    def set_plain(self, _str):
+        self.plain = _str
+        self.hash()
+
+    def set_hashed(self, _str):
+        self.plain = ""
+        self.hash = _str
+
+    def hash(self):
+        self.hash = sha512_crypt.hash(self.plain, rounds=5000)
+
+    @staticmethod
+    def is_hashed(_str):
+        return sha512_crypt.identify(_str)
+
+    def __str__(self):
+        return f'Password(plain: {self.plain}, hash: {self.hash})'
 
 
 def parse_arguments():
@@ -128,6 +158,18 @@ def get_conductor_ips(deployment_config):
     return conductor_ips
 
 
+def init_passwords(deployment_config):
+    passwords = {}
+    common_password = deployment_config['global'].get(f'common_password')
+    for user in ('admin', 'root', 't128', 'unsafe_ha_peer'):
+        if common_password:
+            password = common_password
+        else:
+            password = deployment_config['global'].get(f'{user}_password')
+        passwords[user] = Password(password)
+    return passwords
+
+
 @app.route('/<hostname>/meta-data')
 def meta(hostname):
         return f'''instance-id: {hostname}
@@ -152,6 +194,7 @@ def user(hostname):
                 root_ssh_keys.extend(r.text.splitlines())
         else:
             root_ssh_keys = [root_ssh_key]
+    passwords = init_passwords(deployment_config)
 
     user_data = ''
     for vm in deployment_config.get('vms'):
@@ -175,6 +218,7 @@ def user(hostname):
                     'hostname': hostname,
                     'vm_type': vm_type,
                     'root_ssh_keys': root_ssh_keys,
+                    'passwords': passwords,
                 }
                 additional_variables.update(deployment_config['global'])
                 if vm.get('template_variables'):
