@@ -1,7 +1,7 @@
 #cloud-config
 user: root
 disable_root: False
-password: {{ root_password }}
+password: {{ passwords['root'].hash }}
 chpasswd:
   expire: False
 ssh_authorized_keys:

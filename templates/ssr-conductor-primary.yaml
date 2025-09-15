@@ -4,7 +4,7 @@
 {%- if node_ips %}{% set node_ip = node_ips[0] %}{% else %}{% set node_ip = mgmt_ip %}{% endif -%}
 - path: /root/initializer-preferences.json
   content: |
-    {"node-role": "conductor", "node-name": "node-a", "router-name": "{{ conductor_name }}",  "node-ip": "{{ node_ip }}", "admin-password": "{{ admin_password }}"}
+    {"node-role": "conductor", "node-name": "node-a", "router-name": "{{ conductor_name }}",  "node-ip": "{{ node_ip }}", "admin-password": "{{ passwords['admin'].hash }}"}
 - path: /root/base-config.pcli
   content: |
     config authority router {{ conductor_name }} system inactivity-timer 86400
@@ -24,4 +24,6 @@
 {% block extra_runcmd -%}
 {{ super() }}
 - sleep 60; if [ -e /root/base-config.pcli ]; then sudo -u admin pcli < /root/base-config.pcli; fi
+- curl -sS -o /root/routers.pcli "{{ base_url }}routers.pcli"
+- if [ -e /root/routers.pcli ]; then sudo -u admin pcli < /root/routers.pcli; fi
 {%- endblock %}

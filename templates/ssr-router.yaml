@@ -4,7 +4,7 @@
 {{ super() }}
 - path: /root/initializer-preferences.json
   content: |
-    {"node-role": "combo", "node-ip": "127.0.0.1", "node-name": "dummy-node", "router-name": "dummy-router", "conductor": {"primary": {"ip": "{{ conductor_ips[0] }}"}{% if conductor_ips | length == 2 %}, "secondary": {"ip": "{{ conductor_ips[1] }}"}{% endif %}}, "admin-password": "{{ admin_password }}"}
+    {"node-role": "combo", "node-ip": "127.0.0.1", "node-name": "dummy-node", "router-name": "dummy-router", "conductor": {"primary": {"ip": "{{ conductor_ips[0] }}"}{% if conductor_ips | length == 2 %}, "secondary": {"ip": "{{ conductor_ips[1] }}"}{% endif %}}, "admin-password": "{{ passwords['admin'].hash }}"}
 - path: /etc/128T-hardware-bootstrapper/onboarding-config.json
   content: |
     {

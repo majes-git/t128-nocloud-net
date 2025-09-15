@@ -6,5 +6,5 @@
 {%- if not ha_peer_ip %}{% set ha_peer_ip = conductor_ips[0] %}{% endif -%}
 - path: /root/initializer-preferences.json
   content: |
-    {"node-role": "conductor", "node-name": "node-b", "router-name": "{{ conductor_name }}",  "node-ip": "{{ node_ip }}", "ha-peer-ip": "{{ ha_peer_ip }}", "learn-from-ha-peer": true, "ha-peer-username": "{{ ha_peer_username }}", "unsafe-ha-peer-password": "{{ unsafe_ha_peer_password }}", "admin-password": "{{ admin_password }}"}
+    {"node-role": "conductor", "node-name": "node-b", "router-name": "{{ conductor_name }}",  "node-ip": "{{ node_ip }}", "ha-peer-ip": "{{ ha_peer_ip }}", "learn-from-ha-peer": true, "ha-peer-username": "{{ ha_peer_username }}", "unsafe-ha-peer-password": "{{ passwords['t128'].plain }}", "admin-password": "{{ passwords['admin'].hash }}"}
 {% endblock %}
