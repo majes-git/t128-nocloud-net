@@ -19,9 +19,13 @@
     hostnamectl set-hostname {{ hostname }}
     {% if vm_type != "ssr-mist-managed" %}echo {{ hostname }} > /etc/salt/minion_id{% endif %}
     systemctl restart salt-minion
-    touch /var/lib/cloud/data/second-boot.finished
+    if [ -e /root/change_admin_password.py ]; then
+        while ! curl -s -k -I https://127.0.0.1/ >/dev/null; do echo "Waiting for the SSR API to be ready..."; sleep 30; done
+        /root/change_admin_password.py
+    fi
     {% block second_boot_extra -%}
     {%- endblock %}
+    touch /var/lib/cloud/data/second-boot.finished
 {%- endblock %}
 
 {% block extra_runcmd -%}

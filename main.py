@@ -23,6 +23,7 @@ app = Flask(__name__)
 class Password(object):
     plain = ""
     hash = ""
+    default = ""
 
     def __init__(self, _str):
         if Password.is_hashed(_str):
@@ -37,6 +38,9 @@ class Password(object):
     def set_hashed(self, _str):
         self.plain = ""
         self.hash = _str
+
+    def set_default(self, _str):
+        self.default = _str
 
     def hash(self):
         self.hash = sha512_crypt.hash(self.plain, rounds=5000)
@@ -158,7 +162,7 @@ def get_conductor_ips(deployment_config):
     return conductor_ips
 
 
-def init_passwords(deployment_config):
+def init_passwords(deployment_config, defaults={}):
     passwords = {}
     common_password = deployment_config['global'].get(f'common_password')
     for user in ('admin', 'root', 't128', 'unsafe_ha_peer'):
@@ -166,7 +170,10 @@ def init_passwords(deployment_config):
             password = common_password
         else:
             password = deployment_config['global'].get(f'{user}_password')
-        passwords[user] = Password(password)
+        _password = Password(password)
+        if defaults:
+            _password.set_default(defaults['global'][f'{user}_password'])
+        passwords[user] = _password
     return passwords
 
 
@@ -194,7 +201,7 @@ def user(hostname):
                 root_ssh_keys.extend(r.text.splitlines())
         else:
             root_ssh_keys = [root_ssh_key]
-    passwords = init_passwords(deployment_config)
+    passwords = init_passwords(deployment_config, defaults)
 
     user_data = ''
     for vm in deployment_config.get('vms'):

@@ -1,4 +1,4 @@
-{% extends 'base.yaml' %}
+templates/ssr-base.yaml{% extends 'base.yaml' %}
 
 {%- block write_files %}
 {%- if root_ssh_keys %}
@@ -10,6 +10,39 @@
     {{ key }}
     {%- endfor %}
 {% endif -%}
+- path: /root/change_admin_password.py
+  permissions: '0700'
+  content: |
+    #!/usr/bin/env python3
+    import requests
+
+    BASE_URL = "https://localhost"
+    DEFAULT_PASSWORD = "{{ passwords['admin'].default }}"
+    ADMIN_PASSWORD = "{{ passwords['admin'].plain }}"
+
+    def main():
+        with requests.Session() as session:
+            session.verify = False
+
+            login_payload = {
+                "username": "admin",
+                "password": DEFAULT_PASSWORD,
+            }
+            login_url = BASE_URL + '/api/v1/login'
+            login_response = session.post(login_url, json=login_payload)
+
+            if login_response.status_code == 200:
+                session.headers['Authorization'] = f'Bearer {login_response.json()["token"]}'
+
+                admin_patch_payload = {
+                    "password": ADMIN_PASSWORD,
+                    "oldPassword": DEFAULT_PASSWORD,
+                }
+                patch_url = BASE_URL + '/api/v1/user/admin'
+                patch_response = session.patch(patch_url, json=admin_patch_payload)
+
+    if __name__ == "__main__":
+        main()
 {%- endblock %}
 
 {% block runcmd -%}
