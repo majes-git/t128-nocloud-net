@@ -9,6 +9,10 @@
       "admin-password": "{{ passwords['admin'].hash }}",
       "root-password": "{{ passwords['root'].hash }}",
       "t128-password": "{{ passwords['t128'].hash }}",
+      {%- if artifactory_user +%}
+      "artifactory-user": "{{ artifactory_user }}",
+      "artifactory-password": "{{ artifactory_password }}",
+      {%- endif %}
       "interface-name": "ge-0-0",
       "node-name": "node0",
       "node-ip": "{{ mgmt_ip }}/24",
