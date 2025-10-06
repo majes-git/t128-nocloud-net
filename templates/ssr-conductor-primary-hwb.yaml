@@ -29,7 +29,12 @@
 - path: /root/base-config.pcli
   content: |
     config authority router {{ conductor_name }} system inactivity-timer 86400
-{%- for _ in node_ips %}
+{%- if conductor_ips %}
+{%- for conductor_ip in conductor_ips %}
+    config authority conductor-address {{ conductor_ip }}
+{%- endfor %}
+{%- endif %}
+{%- for node_ip in node_ips %}
     config authority router {{ conductor_name }} node node{{ loop.index0 }} asset-id {{ conductor_name }}-{{ node_names[loop.index0] }}
     config authority router {{ conductor_name }} node node{{ loop.index0 }} role conductor
 {%- endfor %}
@@ -64,6 +69,12 @@
             if [ "$old_sum" != "$new_sum" ]; then
                 ifdown $interface
                 ifup   $interface
+            fi
+
+            # trigger a reboot after salt states have been applied
+            if [ ! -e /root/onboarding.finished ]; then
+                touch /root/onboarding.finished
+                reboot
             fi
 
     Call fix-oob script:

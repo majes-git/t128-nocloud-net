@@ -6,6 +6,11 @@
   permissions: "0755"
   content: |
     #!/bin/bash
+    bash -x /root/second-boot.sh >/root/second-boot.stdout 2>/root/second-boot.stderr
+- path: /root/second-boot.sh
+  permissions: "0755"
+  content: |
+    #!/bin/bash
     # This script runs provisioning tasks as part of the cloud-init process.
     # Because of the (intented) automatic reboot by 128T-hardware-bootstrapper
     # some tasks need to be completed by this script at the second boot.
@@ -19,10 +24,11 @@
     hostnamectl set-hostname {{ hostname }}
     {% if vm_type != "ssr-mist-managed" %}echo {{ hostname }} > /etc/salt/minion_id{% endif %}
     systemctl restart salt-minion
-    if [ -e /root/change_admin_password.py ]; then
-        while ! curl -s -k -I https://127.0.0.1/ >/dev/null; do echo "Waiting for the SSR API to be ready..."; sleep 30; done
-        /root/change_admin_password.py
-    fi
+    # if [ -e /root/change_admin_password.py ]; then
+    #     while ! curl -s -k -I https://127.0.0.1/ >/dev/null; do echo "Waiting for the SSR API to be ready..." >> /root/change_admin_password.log; sleep 30; done
+    #     /root/change_admin_password.py
+    #     touch /root/change_admin_password.ran
+    # fi
     {% block second_boot_extra -%}
     {%- endblock %}
     touch /var/lib/cloud/data/second-boot.finished
