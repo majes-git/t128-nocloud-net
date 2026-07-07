@@ -117,7 +117,7 @@ def get_network_config(deployment_config, vm_name, mgmt_ip):
                  'addresses': [ mgmt_ip + '/24' ],
                  'routes': [
                     {
-                        'to': '0.0.0.0/0',
+                        'to': 'default',
                         'via': mgmt_gateway,
                         'metric': 199,
                     }
@@ -143,7 +143,7 @@ def get_network_config(deployment_config, vm_name, mgmt_ip):
                         else:
                             nc['addresses'] = [address]
                     if e == 2 and elements[2]:
-                        routes.append({'to': '0.0.0.0/0', 'via': elements[2]})
+                        routes.append({'to': 'default', 'via': elements[2]})
                     if e == 3 and elements[3]:
                         nc['routes'] = []
                         for route in elements[3].split(';'):
