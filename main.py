@@ -248,6 +248,7 @@ def user(hostname):
                         pre_runcmd=vm.get('pre_runcmd'),
                         post_runcmd=vm.get('post_runcmd'),
                         write_files=vm.get('write_files'),
+                        device_map=vm.get('device_map'),
                         **additional_variables,
                     )
     return user_data

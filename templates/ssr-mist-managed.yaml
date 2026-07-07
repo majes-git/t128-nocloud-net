@@ -1,6 +1,9 @@
 {% extends 'ssr-base-hwb.yaml' %}
 {%- block write_files %}
 {{ super() }}
+{% if not device_map %}
+{% set device_map = [{'name': 'mgmt', 'type': 'MGMT', 'interface_name': 'mgmt-0-0', 'pci_address': '0000:00:12.0'}, {'name': 'wan1', 'type': 'WAN', 'interface_name': 'ge-0-1', 'pci_address': '0000:00:13.0'}, {'name': 'lan1', 'type': 'LAN', 'interface_name': 'ge-0-2', 'pci_address': '0000:00:14.0'}] %}
+{% endif %}
 - path: /etc/128T-hardware-bootstrapper/onboarding-config.json
   content: |
     {
@@ -9,45 +12,21 @@
       "registration-code": "{{ registration_code }}",
       "devicemap": {
         "ethernet": [
+          {% for device in device_map %}
           {
-            "pciAddress": "0000:00:12.0",
-            "name": "mgmt-0-0",
-            "type": "MGMT",
-            "description": "MGMT network interface",
+            "pciAddress": "{{ device.pci_address }}",
+            "name": "{{ device.interface_name }}",
+            "type": "{{ device.type }}",
+            "description": "{{ device.name | upper }} network interface",
             "bcpNetwork": {
               "virtualHubDevice": {
-                "description": "MGMT network interface",
-                "name": "mgmt"
+                "description": "{{ device.name | upper }} network interface",
+                "name": "{{ device.name }}"
               }
             },
             "speed": 1000
-          },
-          {
-            "pciAddress": "0000:00:13.0",
-            "name": "ge-0-1",
-            "type": "WAN",
-            "description": "WAN1 network interface",
-            "bcpNetwork": {
-              "standaloneBranch": {
-                "name": "wan1",
-                "description": "WAN1 network interface"
-              }
-            },
-            "speed": 1000
-          },
-          {
-            "pciAddress": "0000:00:14.0",
-            "name": "ge-0-2",
-            "type": "LAN",
-            "description": "LAN1 network interface",
-            "bcpNetwork": {
-              "standaloneBranch": {
-                "name": "lan1",
-                "description": "LAN1 network interface"
-              }
-            },
-            "speed": 1000
-          }
+          }{% if not loop.last %},{% endif %}
+          {% endfor %}
         ]
       }
     }
