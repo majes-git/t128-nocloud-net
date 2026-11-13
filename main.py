@@ -143,7 +143,14 @@ def get_network_config(deployment_config, vm_name, mgmt_ip):
                         else:
                             nc['addresses'] = [address]
                     if e == 2 and elements[2]:
-                        routes.append({'to': 'default', 'via': elements[2]})
+                        if vm['type'].startswith('ssr-'):
+                            # if VM is an SSR handle default routes differently (cloud-init glitch)
+                            mgmt_routes = network_config['network']['ethernets']['eth0']['routes']
+                            mgmt_routes = [r for r in mgmt_routes if r['to'] != 'default']
+                            network_config['network']['ethernets']['eth0']['routes'] = mgmt_routes
+                            routes.append({'to': '0.0.0.0/0', 'via': elements[2]})
+                        else:
+                            routes.append({'to': 'default', 'via': elements[2]})
                     if e == 3 and elements[3]:
                         nc['routes'] = []
                         for route in elements[3].split(';'):
